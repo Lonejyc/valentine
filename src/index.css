@@ -3,12 +3,16 @@
 @font-face {
   font-family: "Peridot PE";
   src: url("/fonts/Peridot-PE.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
 }
 
 @theme {
   --font-peridot: "Peridot PE", sans-serif;
+  --color-valentine-pink: #FF307C;
+  --color-valentine-dark: #8B0033;
+  --color-valentine-base: #AB124A;
+  --color-valentine-base-dark: #4C0620;
+  --color-valentine-card-light: #FEBEE6;
+  --color-valentine-card-dark: #FF41B6;
 }
 
 :root {
