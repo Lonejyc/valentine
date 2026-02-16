@@ -18,6 +18,7 @@ export const useProposal = () => {
     yesButtonSize,
     noButtonSize,
     isOpen,
+    setIsOpen,
     handleRefusal,
     handleAccept
   }
