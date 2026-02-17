@@ -22,7 +22,7 @@ app.use('*', async (c, next) => {
 })
 
 app.use('/api/*', cors({
-  origin: '*',
+  origin: ['https://valentine.jocelynmarcilloux.com', 'http://localhost:5173'],
   allowMethods: ['POST', 'GET', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   exposeHeaders: ['Content-Length'],
@@ -72,15 +72,18 @@ app.get('/api/get/:id', (c) => {
   return c.json(result)
 })
 
-app.use('/*', serveStatic({ root: './dist' }))
+app.all('/api/*', (c) => {
+  return c.json({ error: 'API route not found' }, 404)
+})
 
-
+app.get('/*', serveStatic({ root: './dist' }))
 
 app.get('*', async (c) => {
   const file = Bun.file('./dist/index.html')
   if (await file.exists()) {
     return c.html(await file.text())
   }
+  return c.text('Not found', 404)
 })
 
 export default {
