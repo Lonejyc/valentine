@@ -18,10 +18,6 @@ db.run(`
 // Middleware
 app.use('/api/*', cors())
 
-app.use('/*', serveStatic({ root: './dist' }))
-
-
-
 // Helper to generate random ID
 const generateId = (length = 6) => {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -63,6 +59,10 @@ app.get('/api/get/:id', (c) => {
 
   return c.json(result)
 })
+
+app.use('/*', serveStatic({ root: './dist' }))
+
+
 
 app.get('*', async (c) => {
   const file = Bun.file('./dist/index.html')
