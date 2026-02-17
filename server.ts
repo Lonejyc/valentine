@@ -16,7 +16,19 @@ db.run(`
 `)
 
 // Middleware
-app.use('/api/*', cors())
+app.use('*', async (c, next) => {
+  console.log(`[${c.req.method}] ${c.req.url}`)
+  await next()
+})
+
+app.use('/api/*', cors({
+  origin: '*',
+  allowMethods: ['POST', 'GET', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 600,
+  credentials: true,
+}))
 
 // Helper to generate random ID
 const generateId = (length = 6) => {
