@@ -1,13 +1,15 @@
+import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serveStatic } from 'hono/bun'
-import { Database } from 'bun:sqlite'
+import Database from 'better-sqlite3'
+import fs from 'node:fs'
 
 const app = new Hono()
 const db = new Database('valentine.sqlite')
 
-// Initialize database
-db.run(`
+// Initialisation de la base de données
+db.exec(`
   CREATE TABLE IF NOT EXISTS links (
     id TEXT PRIMARY KEY,
     question TEXT,
@@ -15,12 +17,13 @@ db.run(`
   )
 `)
 
-// Middleware
+// Middleware de log
 app.use('*', async (c, next) => {
   console.log(`[${c.req.method}] ${c.req.url}`)
   await next()
 })
 
+// Configuration CORS
 app.use('/api/*', cors({
   origin: ['https://valentine.jocelynmarcilloux.com', 'http://localhost:5173'],
   allowMethods: ['POST', 'GET', 'OPTIONS'],
@@ -40,7 +43,7 @@ const generateId = (length = 6) => {
   return result
 }
 
-// Routes
+// Routes API
 app.post('/api/create', async (c) => {
   try {
     const { question, answer } = await c.req.json()
@@ -72,22 +75,29 @@ app.get('/api/get/:id', (c) => {
   return c.json(result)
 })
 
+// Fallback API
 app.all('/api/*', (c) => {
   return c.json({ error: 'API route not found' }, 404)
 })
 
+// Fichiers statiques
 app.get('/*', serveStatic({ root: './dist' }))
 
-app.get('*', async (c) => {
-  const file = Bun.file('./dist/index.html')
-  if (await file.exists()) {
-    return c.html(await file.text())
+// Fallback SPA
+app.get('*', (c) => {
+  try {
+    const html = fs.readFileSync('./dist/index.html', 'utf-8')
+    return c.html(html)
+  } catch (error) {
+    return c.text('Not found', 404)
   }
-  return c.text('Not found', 404)
 })
 
-export default {
-  port: process.env.PORT || 3000,
-  hostname: '0.0.0.0',
+// Lancement du serveur Node
+const port = Number(process.env.PORT) || 3000
+console.log(`Server is running on port ${port}`)
+
+serve({
   fetch: app.fetch,
-}
+  port
+})
