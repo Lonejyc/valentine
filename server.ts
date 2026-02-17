@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { serveStatic } from 'hono/bun'
 import { Database } from 'bun:sqlite'
 
 const app = new Hono()
@@ -15,11 +16,11 @@ db.run(`
 `)
 
 // Middleware
-app.use('/*', cors({
-  origin: 'http://localhost:5173', // Allow Vite frontend
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
-  allowHeaders: ['Content-Type']
-}))
+app.use('/api/*', cors())
+
+app.use('/*', serveStatic({ root: './dist' }))
+
+
 
 // Helper to generate random ID
 const generateId = (length = 6) => {
@@ -63,7 +64,12 @@ app.get('/api/get/:id', (c) => {
   return c.json(result)
 })
 
-console.log('Server running on http://localhost:3000')
+app.get('*', async (c) => {
+  const file = Bun.file('./dist/index.html')
+  if (await file.exists()) {
+    return c.html(await file.text())
+  }
+})
 
 export default {
   port: 3000,

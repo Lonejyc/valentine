@@ -30,7 +30,7 @@ function App() {
     
     if (id) {
       setHasId(true)
-      fetch(`http://localhost:3000/api/get/${id}`)
+      fetch(`/api/get/${id}`)
         .then(res => {
           if (res.ok) return res.json()
           throw new Error('Not found')
@@ -67,7 +67,7 @@ function App() {
     if (!question || !customAnswer) return
 
     try {
-      const res = await fetch('http://localhost:3000/api/create', {
+      const res = await fetch('/api/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, answer: customAnswer })
